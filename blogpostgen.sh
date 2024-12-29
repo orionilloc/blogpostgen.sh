@@ -13,12 +13,24 @@ read -r post_header_tags
 blog_path="$HOME/github/orionilloc.github.io"
 post_filename_date=$(date "+%Y-%m-%d")
 post_filename_full="${post_filename_date}-${challenge_name}.md"
+post_template="$blog_path/_posts/Post-Template.md"
+
+# Check if the Post-Template.md file exists locally, and if not, download it from the URL
+if [[ ! -f "$post_template" ]]; then
+    echo "Post-Template.md not found locally. Downloading..."
+    curl -s -o "$post_template" "https://raw.githubusercontent.com/orionilloc/blogpostgen.sh/refs/heads/main/Post-Template.md"
+    if [[ $? -ne 0 ]]; then
+        echo "Failed to download Post-Template.md. Exiting."
+        exit 3
+    fi
+    echo "Post-Template.md downloaded successfully."
+fi
 
 # Creates a new post with the specified post title, as needed for static site generation.
 if [[ -f "$blog_path/_posts/$post_filename_full" ]]; then
     echo "Post file already exists with the current date. Exiting to avoid data loss." && exit 1
 else
-    cp "$blog_path/_posts/Post-Template.md" "$blog_path/_posts/$post_filename_full"
+    cp "$post_template" "$blog_path/_posts/$post_filename_full"
 fi
 
 if [[ -d "$blog_path/assets/img/$challenge_name" ]]; then
